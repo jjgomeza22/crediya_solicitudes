@@ -1,4 +1,4 @@
-package co.com.crediya.r2dbc.repository;
+package co.com.crediya.r2dbc.repository.states;
 
 import co.com.crediya.r2dbc.entity.StatesEntity;
 import org.springframework.data.repository.query.ReactiveQueryByExampleExecutor;

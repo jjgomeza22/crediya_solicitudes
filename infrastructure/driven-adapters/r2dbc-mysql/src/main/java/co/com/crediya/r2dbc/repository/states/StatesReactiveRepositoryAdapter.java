@@ -1,4 +1,4 @@
-package co.com.crediya.r2dbc.repository;
+package co.com.crediya.r2dbc.repository.states;
 
 import co.com.crediya.model.states.States;
 import co.com.crediya.model.states.gateways.StatesRepository;
@@ -10,11 +10,11 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public class StatesReactiveRepositoryAdapter extends ReactiveAdapterOperations<
-    States,
-    StatesEntity,
-    Integer,
+        States,
+        StatesEntity,
+        Integer,
         StatesReactiveRepository
-> implements StatesRepository {
+        > implements StatesRepository {
     public StatesReactiveRepositoryAdapter(StatesReactiveRepository repository, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.map(d, States.class));
     }
