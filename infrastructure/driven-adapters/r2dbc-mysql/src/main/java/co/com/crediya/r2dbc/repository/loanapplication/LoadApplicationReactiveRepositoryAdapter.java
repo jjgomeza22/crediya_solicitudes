@@ -6,6 +6,7 @@ import co.com.crediya.r2dbc.entity.LoanApplicationEntity;
 import co.com.crediya.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
 @Repository
 public class LoadApplicationReactiveRepositoryAdapter extends ReactiveAdapterOperations<
@@ -16,5 +17,11 @@ public class LoadApplicationReactiveRepositoryAdapter extends ReactiveAdapterOpe
         > implements LoanApplicationRepository {
     public LoadApplicationReactiveRepositoryAdapter(LoanApplicationReactiveRepository repository, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.map(d, LoanApplication.class));
+    }
+
+    @Override
+    public Mono<String> saveLoanApplication(LoanApplication loanApplication) {
+        return super.save(loanApplication)
+                .then(Mono.just("OK"));
     }
 }

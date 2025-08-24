@@ -13,7 +13,7 @@ adapters:
   r2dbc:
     host: localhost
     port: 3306
-    database: mydb
-    user: test
-    password: test
+    database: solicitudes
+    user: app_user
+    password: juan*201
 
