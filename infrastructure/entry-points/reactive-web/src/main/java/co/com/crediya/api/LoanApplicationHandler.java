@@ -26,7 +26,6 @@ public class LoanApplicationHandler {
         Log.logInfo(EVENT, this.getClass().getCanonicalName().concat(endpoint), Status.EXECUTED.name());
         return request.bodyToMono(SendLoanApplicationDto.class)
                 .map(loanApplicationMapper::toModel)
-                .doOnNext(data -> Log.logInfo("si", "si", data.toString()))
                 .flatMap(sendApplicationLoan::execute)
                 .doOnNext(res -> Log.logInfo(EVENT, this.getClass().getCanonicalName().concat(endpoint), Status.FINALIZED.name()))
                 .flatMap(ServerResponse.ok()::bodyValue)
