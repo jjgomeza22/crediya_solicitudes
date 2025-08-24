@@ -8,13 +8,13 @@ import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class LoadTypeReactiveRepositoryAdapter extends ReactiveAdapterOperations<
+public class LoanTypeReactiveRepositoryAdapter extends ReactiveAdapterOperations<
         LoanType,
         LoanTypeEntity,
         Integer,
         LoanTypeReactiveRepository
         > implements LoanTypeRepository {
-    public LoadTypeReactiveRepositoryAdapter(LoanTypeReactiveRepository repository, ObjectMapper mapper) {
+    public LoanTypeReactiveRepositoryAdapter(LoanTypeReactiveRepository repository, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.map(d, LoanType.class));
     }
 }

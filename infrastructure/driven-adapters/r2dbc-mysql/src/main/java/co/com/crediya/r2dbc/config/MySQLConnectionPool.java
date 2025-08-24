@@ -23,7 +23,7 @@ public class MySQLConnectionPool {
                 .host(properties.host())
                 .port(properties.port())
                 .database(properties.database())
-                .user(properties.database())
+                .user(properties.username())
                 .password(properties.password())
                 .build();
 

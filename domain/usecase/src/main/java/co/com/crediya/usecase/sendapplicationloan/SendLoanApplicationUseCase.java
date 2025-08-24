@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
-public class SendApplicationLoanUseCase implements IUseCaseMono<LoanApplication, String> {
+public class SendLoanApplicationUseCase implements IUseCaseMono<LoanApplication, String> {
 
     private final LoanApplicationRepository loanApplicationRepository;
 

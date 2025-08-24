@@ -1,19 +1,27 @@
-##Spring Configuration
 server:
   port: 8080
 spring:
   application:
-    name: crediYaSolicitudes
+    name: "crediYaSolicitudes"
   devtools:
     add-properties: false
   profiles:
-    include:
-
+    include: null
 adapters:
   r2dbc:
-    host: localhost
+    host: "localhost"
     port: 3306
-    database: solicitudes
-    user: app_user
-    password: juan*201
-
+    database: "solicitudes"
+    username: "app_user"
+    password: "juan*201"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+cors:
+  allowed-origins: "http://localhost:4200,http://localhost:8080"
