@@ -25,7 +25,7 @@ public class LoanApplicationReactiveRepositoryAdapter extends ReactiveAdapterOpe
     public Mono<String> saveLoanApplication(LoanApplication loanApplication) {
         var method = "saveLoanApplication";
         Log.logInfo(method, this.getClass().getCanonicalName(), Status.EXECUTED.name());
-        return super.save(loanApplication)
+        return repository.save(toData(loanApplication))
                 .doOnNext(usr -> Log.logInfo(method, this.getClass().getCanonicalName(), Status.FINALIZED.name()))
                 .doOnError(err -> Log.logError(method, this.getClass().getCanonicalName(), Status.ERROR.name(), new Exception(err)))
                 .then(Mono.just("OK"));

@@ -27,16 +27,16 @@ class SendLoanApplicationUseCaseTest {
     @Mock
     LoanTypeRepository loanTypeRepository;
 
+    private static LoanApplication loanApplication = LoanApplication.builder()
+            .amount(new BigDecimal(1500000))
+            .timeLimit(12)
+            .email("juan@mail.com")
+            .stateId(4)
+            .loanTypeId(1)
+            .build();
+
     @Test
     void shouldSendLoanApplication() {
-        var request = LoanApplication.builder()
-                .amount(new BigDecimal(1500000))
-                .timeLimit(12)
-                .email("juan@mail.com")
-                .stateId(4)
-                .loanTypeId(1)
-                .build();
-
         var loanType = LoanType.builder()
                 .name("libre inversión")
                 .minAmount(new BigDecimal(500000))
@@ -48,7 +48,7 @@ class SendLoanApplicationUseCaseTest {
         Mockito.when(loanTypeRepository.findById(Mockito.anyInt())).thenReturn(Mono.just(loanType));
         Mockito.when(loanApplicationRepository.saveLoanApplication(Mockito.any(LoanApplication.class))).thenReturn(Mono.just("OK"));
 
-        sendLoanApplicationUseCase.execute(request)
+        sendLoanApplicationUseCase.execute(loanApplication)
                 .as(StepVerifier::create)
                 .assertNext(res -> Assertions.assertEquals("OK", res))
                 .verifyComplete();
@@ -56,17 +56,9 @@ class SendLoanApplicationUseCaseTest {
 
     @Test
     void shouldReturnLoanTypeNotFoundException() {
-        var request = LoanApplication.builder()
-                .amount(new BigDecimal(1500000))
-                .timeLimit(12)
-                .email("juan@mail.com")
-                .stateId(4)
-                .loanTypeId(1)
-                .build();
-
         Mockito.when(loanTypeRepository.findById(Mockito.anyInt())).thenReturn(Mono.empty());
 
-        sendLoanApplicationUseCase.execute(request)
+        sendLoanApplicationUseCase.execute(loanApplication)
                 .as(StepVerifier::create)
                 .expectError(LoanTypeNotFoundException.class)
                 .verify();

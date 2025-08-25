@@ -1,9 +1,7 @@
-package co.com.crediya.r2dbc.repository;
+package co.com.crediya.r2dbc.repository.states;
 
 import co.com.crediya.model.states.States;
 import co.com.crediya.r2dbc.entity.StatesEntity;
-import co.com.crediya.r2dbc.repository.states.StatesReactiveRepository;
-import co.com.crediya.r2dbc.repository.states.StatesReactiveRepositoryAdapter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
