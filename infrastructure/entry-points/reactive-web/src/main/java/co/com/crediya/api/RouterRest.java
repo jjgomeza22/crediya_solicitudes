@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import java.net.URI;
+
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
@@ -63,6 +65,7 @@ public class RouterRest {
     })
     public RouterFunction<ServerResponse> routerFunction() {
         return route()
+                .GET("/", req -> ServerResponse.permanentRedirect(URI.create("/swagger-ui.html")).build())
                 .POST("/api/v1/solicitud", handler::sendApplicationLoan)
                 .onError(LoanTypeNotFoundException.class, exceptionHandler::handleException)
                 .build();
