@@ -1,6 +1,7 @@
 package co.com.crediya.api;
 
 import co.com.crediya.api.config.ApplicationExceptionHandler;
+import co.com.crediya.api.exception.InvalidInputException;
 import co.com.crediya.model.loanapplication.LoanApplication;
 import co.com.crediya.usecase.sendapplicationloan.exception.LoanTypeNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,6 +69,7 @@ public class RouterRest {
                 .GET("/", req -> ServerResponse.permanentRedirect(URI.create("/swagger-ui.html")).build())
                 .POST("/api/v1/solicitud", handler::sendApplicationLoan)
                 .onError(LoanTypeNotFoundException.class, exceptionHandler::handleException)
+                .onError(InvalidInputException.class, exceptionHandler::handleException)
                 .build();
     }
 }

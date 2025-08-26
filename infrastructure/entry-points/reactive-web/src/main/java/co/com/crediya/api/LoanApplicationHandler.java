@@ -2,6 +2,7 @@ package co.com.crediya.api;
 
 import co.com.crediya.api.dto.SendLoanApplicationDto;
 import co.com.crediya.api.mapper.LoanApplicationMapper;
+import co.com.crediya.api.validator.RequestValidator;
 import co.com.crediya.log.Log;
 import co.com.crediya.log.Status;
 import co.com.crediya.model.loanapplication.LoanApplication;
@@ -25,6 +26,7 @@ public class LoanApplicationHandler {
         var endpoint = request.path();
         Log.logInfo(EVENT, this.getClass().getCanonicalName().concat(endpoint), Status.EXECUTED.name());
         return request.bodyToMono(SendLoanApplicationDto.class)
+                .transform(RequestValidator.validate())
                 .map(loanApplicationMapper::toModel)
                 .flatMap(sendApplicationLoan::execute)
                 .doOnNext(res -> Log.logInfo(EVENT, this.getClass().getCanonicalName().concat(endpoint), Status.FINALIZED.name()))

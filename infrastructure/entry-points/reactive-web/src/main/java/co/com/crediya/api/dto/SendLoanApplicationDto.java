@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 
 public record SendLoanApplicationDto(
         BigDecimal amount,
-        int timeLimit,
+        Integer timeLimit,
         String email,
-        int loanTypeId
+        Integer loanTypeId
 ) {
 }

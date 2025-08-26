@@ -25,3 +25,7 @@ management:
         enabled: true
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
+
+docs:
+  user-handler:
+    post-users: http://localhost:8081/webjars/swagger-ui/index.html#/Loan%20Application/sendApplicationLoan
