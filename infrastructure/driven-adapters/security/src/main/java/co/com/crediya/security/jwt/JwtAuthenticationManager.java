@@ -25,7 +25,7 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
         return Mono.just(authentication)
                 .map(auth -> jwtProvider.getClaims(auth.getCredentials().toString()))
                 .onErrorResume(e -> Mono.error(new InvalidAuthException("Bad token")))
-                .map(claims -> new UsernamePasswordAuthenticationToken(
+                .map(claims -> new JwtAuthentication(
                         claims.getSubject(),
                         null,
                         Stream.of(claims.get("roles"))
@@ -33,7 +33,8 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
                                 .flatMap(role -> role.stream()
                                         .map(r -> r.get("authority"))
                                         .map(SimpleGrantedAuthority::new))
-                                .toList()
+                                .toList(),
+                        claims.getSubject()
                 ));
     }
 }
