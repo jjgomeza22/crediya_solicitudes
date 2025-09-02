@@ -8,6 +8,7 @@ import co.com.crediya.log.Status;
 import co.com.crediya.model.loanapplication.LoanApplication;
 import co.com.crediya.usecase.IUseCaseMono;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -22,6 +23,7 @@ public class LoanApplicationHandler {
 
     private static final String EVENT = "sendApplicationLoan";
 
+    @PreAuthorize("hasAuthority('CLIENT')")
     public Mono<ServerResponse> sendApplicationLoan(ServerRequest request) {
         var endpoint = request.path();
         Log.logInfo(EVENT, this.getClass().getCanonicalName().concat(endpoint), Status.EXECUTED.name());
