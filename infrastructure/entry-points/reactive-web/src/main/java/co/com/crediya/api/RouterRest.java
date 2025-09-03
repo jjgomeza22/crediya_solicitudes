@@ -63,7 +63,8 @@ public class RouterRest {
     public RouterFunction<ServerResponse> routerFunction() {
         return route()
                 .GET("/", req -> ServerResponse.permanentRedirect(URI.create("/swagger-ui.html")).build())
-                .POST("/api/v1/solicitud", handler::sendApplicationLoan)
+                .GET("/solicitud", handler::loanApplicationToReviewUseCase)
+                .POST("/solicitud", handler::sendApplicationLoan)
                 .build();
     }
 }

@@ -7,6 +7,8 @@ spring:
     add-properties: false
   profiles:
     include: null
+  webflux:
+    base-path: /api/v1
 adapters:
   r2dbc:
     host: "localhost"

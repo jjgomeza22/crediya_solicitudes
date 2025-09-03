@@ -9,6 +9,7 @@ import co.com.crediya.log.Status;
 import co.com.crediya.model.loanapplication.LoanApplication;
 import co.com.crediya.security.jwt.JwtAuthentication;
 import co.com.crediya.usecase.IUseCaseMono;
+import co.com.crediya.usecase.loandaplicationtoreview.LoanApplicationToReviewUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -24,6 +25,7 @@ import reactor.util.function.Tuple2;
 public class LoanApplicationHandler {
 
     private final IUseCaseMono<LoanApplication, String> sendApplicationLoan;
+    private final LoanApplicationToReviewUseCase loanApplicationToReviewUseCase;
     private final LoanApplicationMapper loanApplicationMapper;
 
     private static final String EVENT = "sendApplicationLoan";
@@ -44,6 +46,16 @@ public class LoanApplicationHandler {
                 .doOnNext(res -> Log.logInfo(EVENT, this.getClass().getCanonicalName().concat(endpoint), Status.FINALIZED.name()))
                 .flatMap(ServerResponse.ok()::bodyValue)
                 .doOnError(err -> Log.logError(EVENT, this.getClass().getCanonicalName().concat(endpoint), Status.ERROR.name(), new Exception(err)));
+    }
+
+    @PreAuthorize("hasAuthority('ADVISOR')")
+    public Mono<ServerResponse> loanApplicationToReviewUseCase(ServerRequest request) {
+        var page = request.queryParam("page").map(Integer::parseInt).orElse(1);
+        var size = request.queryParam("size").map(Integer::parseInt).orElse(3);
+
+        return this.loanApplicationToReviewUseCase.execute(page, size)
+                .collectList()
+                .flatMap(ServerResponse.ok()::bodyValue);
     }
 
     private Mono<SendLoanApplicationDto> validateCorrectEmail(Tuple2<SendLoanApplicationDto, JwtAuthentication> tuple) {
