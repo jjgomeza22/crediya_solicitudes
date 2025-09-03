@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 @Repository
@@ -51,35 +52,37 @@ public class LoanApplicationReactiveRepositoryAdapter extends ReactiveAdapterOpe
                 StatesEnum.PE_REVIEW.getStateId()
         ).toList();
 
-        return this.getLoanDetails()
+        return this.getLoanDetails(stateIds)
                 .map(d -> new LoanDetails(
                         d.amount(),
                         d.timeLimit(),
                         d.email(),
-                        d.stateId(),
+                        d.state(),
                         d.loanName(),
                         d.interestRate()
                 ));
     }
 
-    public Flux<LoanDetailsDto> getLoanDetails() {
+    public Flux<LoanDetailsDto> getLoanDetails(List<Integer> stateIds) {
         return databaseClient.sql(
                         """
                                 SELECT
-                                    s.monto AS amount,
-                                    s.plazo AS time_limit,
-                                    s.email,
-                                    s.id_estado AS state_id,
-                                    tp.nombre AS loan_name,
-                                    tp.tasa_interes AS interest_rate
+                                      tp.nombre AS loan_name,
+                                      tp.tasa_interes AS interest_rate,
+                                      s.monto AS amount,
+                                      s.plazo AS time_limit,
+                                      s.email,
+                                      e.nombre AS state
                                 FROM
-                                    solicitud s
+                                  solicitud s
                                 INNER JOIN tipo_prestamo tp ON s.id_tipo_prestamo = tp.id_tipo_prestamo
+                                INNER JOIN estados e ON s.id_estado = e.id_estado
                                 WHERE
-                                    s.id_estado IN (2, 3, 4)
+                                  s.id_estado IN (:stateIds)
                                 ORDER BY s.id_estado DESC
                                 """
                 )
+                .bind("stateIds", stateIds)
                 .map(new LoanDetailsRowMapper())
                 .all();
     }

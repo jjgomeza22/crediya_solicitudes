@@ -6,7 +6,7 @@ public record LoanDetailsDto(
         BigDecimal amount,
         Integer timeLimit,
         String email,
-        Integer stateId,
+        String state,
         String loanName,
         BigDecimal interestRate
 ) {
