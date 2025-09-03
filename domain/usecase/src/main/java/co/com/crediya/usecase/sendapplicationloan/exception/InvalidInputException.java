@@ -1,4 +1,4 @@
-package co.com.crediya.api.exception;
+package co.com.crediya.usecase.sendapplicationloan.exception;
 
 public class InvalidInputException extends RuntimeException {
     public InvalidInputException(String message) {

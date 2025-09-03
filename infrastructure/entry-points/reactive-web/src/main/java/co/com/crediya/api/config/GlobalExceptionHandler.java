@@ -1,7 +1,7 @@
 package co.com.crediya.api.config;
 
-import co.com.crediya.api.exception.InvalidInputException;
 import co.com.crediya.security.exception.InvalidAuthException;
+import co.com.crediya.usecase.sendapplicationloan.exception.InvalidInputException;
 import co.com.crediya.usecase.sendapplicationloan.exception.LoanTypeNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.WebProperties;

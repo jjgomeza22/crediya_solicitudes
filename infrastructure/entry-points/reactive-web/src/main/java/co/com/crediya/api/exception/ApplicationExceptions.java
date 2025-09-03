@@ -1,5 +1,6 @@
 package co.com.crediya.api.exception;
 
+import co.com.crediya.usecase.sendapplicationloan.exception.InvalidInputException;
 import reactor.core.publisher.Mono;
 
 public class ApplicationExceptions {
@@ -12,7 +13,7 @@ public class ApplicationExceptions {
     }
 
     public static <T> Mono<T> missingEmail() {
-        return Mono.error(new InvalidInputException("Missing Email"));
+        return Mono.error(new InvalidInputException("Missing or incorrect Email"));
     }
 
     public static <T> Mono<T> missingLoanType() {

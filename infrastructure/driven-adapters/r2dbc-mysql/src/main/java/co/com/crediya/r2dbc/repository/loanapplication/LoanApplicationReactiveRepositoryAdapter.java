@@ -5,7 +5,6 @@ import co.com.crediya.log.Status;
 import co.com.crediya.model.loanapplication.LoanApplication;
 import co.com.crediya.model.loanapplication.gateways.LoanApplicationRepository;
 import co.com.crediya.model.loandetails.LoanDetails;
-import co.com.crediya.model.states.StatesEnum;
 import co.com.crediya.r2dbc.entity.LoanApplicationEntity;
 import co.com.crediya.r2dbc.helper.ReactiveAdapterOperations;
 import co.com.crediya.r2dbc.mapper.LoanDetailsRowMapper;
@@ -17,7 +16,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @Repository
 public class LoanApplicationReactiveRepositoryAdapter extends ReactiveAdapterOperations<
@@ -45,14 +43,8 @@ public class LoanApplicationReactiveRepositoryAdapter extends ReactiveAdapterOpe
     }
 
     @Override
-    public Flux<LoanDetails> getPendingLoanApplications(Integer page, Integer size) {
-        var stateIds = Stream.of(
-                StatesEnum.DECLINE.getStateId(),
-                StatesEnum.PRE_APPROVED.getStateId(),
-                StatesEnum.PE_REVIEW.getStateId()
-        ).toList();
-
-        return this.getLoanDetails(stateIds)
+    public Flux<LoanDetails> getPendingLoanApplications(Integer limit, Integer offset, List<Integer> stateIds) {
+        return this.getLoanDetails(stateIds, limit, offset)
                 .map(d -> new LoanDetails(
                         d.amount(),
                         d.timeLimit(),
@@ -63,7 +55,7 @@ public class LoanApplicationReactiveRepositoryAdapter extends ReactiveAdapterOpe
                 ));
     }
 
-    public Flux<LoanDetailsDto> getLoanDetails(List<Integer> stateIds) {
+    public Flux<LoanDetailsDto> getLoanDetails(List<Integer> stateIds, Integer limit, Integer offset) {
         return databaseClient.sql(
                         """
                                 SELECT
@@ -80,9 +72,12 @@ public class LoanApplicationReactiveRepositoryAdapter extends ReactiveAdapterOpe
                                 WHERE
                                   s.id_estado IN (:stateIds)
                                 ORDER BY s.id_estado DESC
+                                LIMIT :limit OFFSET :offset
                                 """
                 )
                 .bind("stateIds", stateIds)
+                .bind("limit", limit)
+                .bind("offset", offset)
                 .map(new LoanDetailsRowMapper())
                 .all();
     }

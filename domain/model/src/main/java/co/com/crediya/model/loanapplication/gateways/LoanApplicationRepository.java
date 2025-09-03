@@ -5,7 +5,9 @@ import co.com.crediya.model.loandetails.LoanDetails;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface LoanApplicationRepository {
     Mono<String> saveLoanApplication(LoanApplication loanApplication);
-    Flux<LoanDetails> getPendingLoanApplications(Integer page, Integer size);
+    Flux<LoanDetails> getPendingLoanApplications(Integer page, Integer size, List<Integer> stateIds);
 }

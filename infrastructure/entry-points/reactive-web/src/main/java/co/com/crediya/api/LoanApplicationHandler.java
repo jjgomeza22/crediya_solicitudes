@@ -1,12 +1,13 @@
 package co.com.crediya.api;
 
 import co.com.crediya.api.dto.SendLoanApplicationDto;
-import co.com.crediya.api.exception.InvalidInputException;
+import co.com.crediya.api.exception.ApplicationExceptions;
 import co.com.crediya.api.mapper.LoanApplicationMapper;
 import co.com.crediya.api.validator.RequestValidator;
 import co.com.crediya.log.Log;
 import co.com.crediya.log.Status;
 import co.com.crediya.model.loanapplication.LoanApplication;
+import co.com.crediya.model.states.StatesEnum;
 import co.com.crediya.security.jwt.JwtAuthentication;
 import co.com.crediya.usecase.IUseCaseMono;
 import co.com.crediya.usecase.loandaplicationtoreview.LoanApplicationToReviewUseCase;
@@ -19,6 +20,9 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -50,10 +54,11 @@ public class LoanApplicationHandler {
 
     @PreAuthorize("hasAuthority('ADVISOR')")
     public Mono<ServerResponse> loanApplicationToReviewUseCase(ServerRequest request) {
-        var page = request.queryParam("page").map(Integer::parseInt).orElse(1);
-        var size = request.queryParam("size").map(Integer::parseInt).orElse(3);
+        var limit = request.queryParam("limit").map(Integer::parseInt).orElse(1);
+        var offset = request.queryParam("offset").map(Integer::parseInt).orElse(3);
+        var states = Optional.ofNullable(request.queryParams().get("states")).orElse(Stream.of(StatesEnum.PE_REVIEW.toString()).toList());
 
-        return this.loanApplicationToReviewUseCase.execute(page, size)
+        return this.loanApplicationToReviewUseCase.execute(limit, offset, states)
                 .collectList()
                 .flatMap(ServerResponse.ok()::bodyValue);
     }
@@ -68,6 +73,6 @@ public class LoanApplicationHandler {
             return Mono.just(loanApplication);
         }
 
-        return Mono.error(new InvalidInputException("Incorrect email"));
+        return ApplicationExceptions.missingEmail();
     }
 }
