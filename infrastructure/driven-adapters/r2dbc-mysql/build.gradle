@@ -1,6 +1,7 @@
 dependencies {
     implementation project(':model')
     implementation project(':log')
+    implementation project(':utils')
     implementation 'org.springframework:spring-context'
     implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
     implementation 'io.r2dbc:r2dbc-pool'

@@ -30,3 +30,5 @@ include ':security'
 project(':security').projectDir = file('./infrastructure/driven-adapters/security')
 include ':rest-consumer'
 project(':rest-consumer').projectDir = file('./infrastructure/driven-adapters/rest-consumer')
+include ':utils'
+project(':utils').projectDir = file('./infrastructure/helpers/utils')

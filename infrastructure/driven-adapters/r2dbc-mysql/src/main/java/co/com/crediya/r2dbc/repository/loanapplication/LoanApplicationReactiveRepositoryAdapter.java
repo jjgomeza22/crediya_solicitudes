@@ -9,6 +9,8 @@ import co.com.crediya.r2dbc.entity.LoanApplicationEntity;
 import co.com.crediya.r2dbc.helper.ReactiveAdapterOperations;
 import co.com.crediya.r2dbc.mapper.LoanDetailsRowMapper;
 import co.com.crediya.r2dbc.repository.dto.LoanDetailsDto;
+import co.com.crediya.utils.constants.Method;
+import co.com.crediya.utils.constants.StatusResponse;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
@@ -34,16 +36,18 @@ public class LoanApplicationReactiveRepositoryAdapter extends ReactiveAdapterOpe
 
     @Override
     public Mono<String> saveLoanApplication(LoanApplication loanApplication) {
-        var method = "saveLoanApplication";
+        var method = Method.SAVE_LOAN_APPLICATION;
         Log.logInfo(method, this.getClass().getCanonicalName(), Status.EXECUTED.name());
         return repository.save(toData(loanApplication))
                 .doOnNext(usr -> Log.logInfo(method, this.getClass().getCanonicalName(), Status.FINALIZED.name()))
                 .doOnError(err -> Log.logError(method, this.getClass().getCanonicalName(), Status.ERROR.name(), new Exception(err)))
-                .then(Mono.just("OK"));
+                .then(Mono.just(StatusResponse.OK.getValue()));
     }
 
     @Override
     public Flux<LoanDetails> getPendingLoanApplications(Integer limit, Integer offset, List<Integer> stateIds) {
+        var method = Method.GET_PENDING_LOAN_APPLICATIONS;
+        Log.logInfo(method, this.getClass().getCanonicalName(), Status.EXECUTED.name());
         return this.getLoanDetails(stateIds, limit, offset)
                 .map(d -> new LoanDetails(
                         d.amount(),
@@ -52,7 +56,9 @@ public class LoanApplicationReactiveRepositoryAdapter extends ReactiveAdapterOpe
                         d.state(),
                         d.loanName(),
                         d.interestRate()
-                ));
+                ))
+                .doOnComplete(() -> Log.logInfo(method, this.getClass().getCanonicalName(), Status.FINALIZED.name()))
+                .doOnError(err -> Log.logError(method, this.getClass().getCanonicalName(), Status.ERROR.name(), new Exception(err)));
     }
 
     public Flux<LoanDetailsDto> getLoanDetails(List<Integer> stateIds, Integer limit, Integer offset) {

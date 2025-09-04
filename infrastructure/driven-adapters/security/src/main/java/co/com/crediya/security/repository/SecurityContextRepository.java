@@ -1,6 +1,7 @@
 package co.com.crediya.security.repository;
 
 import co.com.crediya.security.jwt.JwtAuthenticationManager;
+import co.com.crediya.utils.constants.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +25,7 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
 
     @Override
     public Mono<SecurityContext> load(ServerWebExchange exchange) {
-        String token = exchange.getAttribute("token");
+        String token = exchange.getAttribute(Constants.TOKEN);
         return jwtAuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                         token,
                         token

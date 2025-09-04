@@ -1,6 +1,7 @@
 package co.com.crediya.security.jwt;
 
 import co.com.crediya.security.exception.InvalidAuthException;
+import co.com.crediya.utils.constants.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -29,10 +30,10 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
                     return new JwtAuthentication(
                             claims.getSubject(),
                             null,
-                            Stream.of(claims.get("roles"))
+                            Stream.of(claims.get(Constants.ROLES))
                                     .map(role -> (List<Map<String, String>>) role)
                                     .flatMap(role -> role.stream()
-                                            .map(r -> r.get("authority"))
+                                            .map(r -> r.get(Constants.AUTHORITY))
                                             .map(SimpleGrantedAuthority::new))
                                     .toList(),
                             claims.getSubject(),

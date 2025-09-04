@@ -20,11 +20,11 @@ public class LoanApplicationToReviewUseCase {
         return this.usersByEmailGateway.getUsersInformation("client@mail.com")
                 .flatMapMany(data -> Flux.fromIterable(states))
                 .flatMap(state -> Mono.just(StatesEnum.valueOf(state).getStateId()))
+                .onErrorResume(IllegalArgumentException.class, ex -> Mono.error(new InvalidInputException("Invalid state")))
                 .collectList()
                 .flatMapMany(statesIdList -> this.loanApplicationRepository
                         .getPendingLoanApplications(limit, offset, statesIdList)
-                )
-                .onErrorMap(e -> new InvalidInputException("Invalid state"));
+                );
     }
 
 }

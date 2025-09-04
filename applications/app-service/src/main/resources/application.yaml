@@ -32,6 +32,10 @@ jwt:
   secret: secretsecretsecretsecretsecretsecretsecretsecret
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
+  allowed-paths: login,swagger,docs
 docs:
   user-handler:
     post-users: http://localhost:8081/webjars/swagger-ui/index.html#/Loan%20Application/sendApplicationLoan
+routes:
+  paths:
+    application: /solicitud

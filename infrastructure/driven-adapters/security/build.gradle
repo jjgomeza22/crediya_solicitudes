@@ -1,5 +1,6 @@
 dependencies {
     implementation project(':model')
+    implementation project(':utils')
     implementation 'org.springframework:spring-context'
 
     implementation 'org.springframework.boot:spring-boot-starter-security'

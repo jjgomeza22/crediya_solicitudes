@@ -12,10 +12,10 @@ public class Log {
     }
 
     public static void logInfo(String event, String source, String message) {
-        logger.info("APPLICATION= {} EVENT= {} SOURCE= {} MESSAGE= {}", APP_NAME, event, source, message);
+        logger.info("APPLICATION= {} SOURCE= {} EVENT= {} MESSAGE= {}", APP_NAME, source, event, message);
     }
 
     public static void logError(String event, String source, String message, Exception ex) {
-        logger.error("APPLICATION= {} EVENT= {} SOURCE= {} MESSAGE= {}", APP_NAME, event, source, message, ex);
+        logger.error("APPLICATION= {} SOURCE= {} EVENT= {} MESSAGE= {}", APP_NAME, source, event, message, ex);
     }
 }

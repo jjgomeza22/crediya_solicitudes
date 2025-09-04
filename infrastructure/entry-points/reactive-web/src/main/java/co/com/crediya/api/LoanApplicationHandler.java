@@ -11,6 +11,8 @@ import co.com.crediya.model.states.StatesEnum;
 import co.com.crediya.security.jwt.JwtAuthentication;
 import co.com.crediya.usecase.IUseCaseMono;
 import co.com.crediya.usecase.loandaplicationtoreview.LoanApplicationToReviewUseCase;
+import co.com.crediya.utils.constants.Event;
+import co.com.crediya.utils.constants.Param;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -28,16 +30,14 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class LoanApplicationHandler {
 
-    private final IUseCaseMono<LoanApplication, String> sendApplicationLoan;
+    private final IUseCaseMono<LoanApplication, String> sendLoanApplication;
     private final LoanApplicationToReviewUseCase loanApplicationToReviewUseCase;
     private final LoanApplicationMapper loanApplicationMapper;
 
-    private static final String EVENT = "sendApplicationLoan";
-
     @PreAuthorize("hasAuthority('CLIENT')")
-    public Mono<ServerResponse> sendApplicationLoan(ServerRequest request) {
+    public Mono<ServerResponse> sendLoanApplication(ServerRequest request) {
         var endpoint = request.path();
-        Log.logInfo(EVENT, this.getClass().getCanonicalName().concat(endpoint), Status.EXECUTED.name());
+        Log.logInfo(Event.SEND_LOAN_APPLICATION, this.getClass().getCanonicalName().concat(endpoint), Status.EXECUTED.name());
         return request.bodyToMono(SendLoanApplicationDto.class)
                 .transform(RequestValidator.validate())
                 .zipWith(ReactiveSecurityContextHolder.getContext()
@@ -46,27 +46,30 @@ public class LoanApplicationHandler {
                 )
                 .flatMap(this::validateCorrectEmail)
                 .map(loanApplicationMapper::toModel)
-                .flatMap(sendApplicationLoan::execute)
-                .doOnNext(res -> Log.logInfo(EVENT, this.getClass().getCanonicalName().concat(endpoint), Status.FINALIZED.name()))
+                .flatMap(sendLoanApplication::execute)
+                .doOnNext(res -> Log.logInfo(Event.SEND_LOAN_APPLICATION, this.getClass().getCanonicalName().concat(endpoint), Status.FINALIZED.name()))
                 .flatMap(ServerResponse.ok()::bodyValue)
-                .doOnError(err -> Log.logError(EVENT, this.getClass().getCanonicalName().concat(endpoint), Status.ERROR.name(), new Exception(err)));
+                .doOnError(err -> Log.logError(Event.SEND_LOAN_APPLICATION, this.getClass().getCanonicalName().concat(endpoint), Status.ERROR.name(), new Exception(err)));
     }
 
     @PreAuthorize("hasAuthority('ADVISOR')")
-    public Mono<ServerResponse> loanApplicationToReviewUseCase(ServerRequest request) {
-        var limit = request.queryParam("limit").map(Integer::parseInt).orElse(1);
-        var offset = request.queryParam("offset").map(Integer::parseInt).orElse(0);
-        var states = Optional.ofNullable(request.queryParams().get("states")).orElse(Stream.of(StatesEnum.PE_REVIEW.toString()).toList());
+    public Mono<ServerResponse> loanApplicationToReview(ServerRequest request) {
+        var limit = request.queryParam(Param.LIMIT).map(Integer::parseInt).orElse(1);
+        var offset = request.queryParam(Param.OFFSET).map(Integer::parseInt).orElse(0);
+        var states = Optional.ofNullable(request.queryParams().get(Param.STATES)).orElse(Stream.of(StatesEnum.PE_REVIEW.toString()).toList());
 
+        var endpoint = request.path();
+        Log.logInfo(Event.LOAN_APPLICATION_TO_REVIEW, this.getClass().getCanonicalName().concat(endpoint), Status.EXECUTED.name());
         return this.loanApplicationToReviewUseCase.execute(limit, offset, states)
                 .collectList()
-                .flatMap(ServerResponse.ok()::bodyValue);
+                .doOnNext(res -> Log.logInfo(Event.LOAN_APPLICATION_TO_REVIEW, this.getClass().getCanonicalName().concat(endpoint), Status.FINALIZED.name()))
+                .flatMap(ServerResponse.ok()::bodyValue)
+                .doOnError(err -> Log.logError(Event.LOAN_APPLICATION_TO_REVIEW, this.getClass().getCanonicalName().concat(endpoint), Status.ERROR.name(), new Exception(err)));
     }
 
     private Mono<SendLoanApplicationDto> validateCorrectEmail(Tuple2<SendLoanApplicationDto, JwtAuthentication> tuple) {
         var loanApplication = tuple.getT1();
         var authentication = tuple.getT2();
-
         var email = authentication.getEmail();
 
         if (email.equals(loanApplication.email())) {

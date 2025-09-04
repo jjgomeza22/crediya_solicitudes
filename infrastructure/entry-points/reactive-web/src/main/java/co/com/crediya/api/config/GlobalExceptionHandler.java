@@ -33,8 +33,10 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
 
     private final BiFunction<Throwable, ServerRequest, Mono<ServerResponse>> handleInvalidInput =
             (ex, req) -> handleException((InvalidInputException) ex, req);
+
     private final BiFunction<Throwable, ServerRequest, Mono<ServerResponse>> handleLoanType =
             (ex, req) -> handleException((LoanTypeNotFoundException) ex, req);
+
     private final BiFunction<Throwable, ServerRequest, Mono<ServerResponse>> handleInvalidAuth =
             (ex, req) -> handleException((InvalidAuthException) ex, req);
 

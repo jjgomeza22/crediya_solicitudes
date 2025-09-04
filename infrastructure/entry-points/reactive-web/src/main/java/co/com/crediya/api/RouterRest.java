@@ -1,5 +1,6 @@
 package co.com.crediya.api;
 
+import co.com.crediya.api.config.ApplicationPath;
 import co.com.crediya.model.loanapplication.LoanApplication;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,6 +24,7 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 @Configuration
 @RequiredArgsConstructor
 public class RouterRest {
+    private final ApplicationPath applicationPath;
     private final LoanApplicationHandler handler;
 
     @Bean
@@ -63,8 +65,8 @@ public class RouterRest {
     public RouterFunction<ServerResponse> routerFunction() {
         return route()
                 .GET("/", req -> ServerResponse.permanentRedirect(URI.create("/swagger-ui.html")).build())
-                .GET("/solicitud", handler::loanApplicationToReviewUseCase)
-                .POST("/solicitud", handler::sendApplicationLoan)
+                .GET(applicationPath.getApplication(), handler::loanApplicationToReview)
+                .POST(applicationPath.getApplication(), handler::sendLoanApplication)
                 .build();
     }
 }
