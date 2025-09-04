@@ -77,7 +77,7 @@ public class LoanApplicationReactiveRepositoryAdapter extends ReactiveAdapterOpe
                                 INNER JOIN estados e ON s.id_estado = e.id_estado
                                 WHERE
                                   s.id_estado IN (:stateIds)
-                                ORDER BY s.id_estado DESC
+                                ORDER BY s.id_solicitud ASC
                                 LIMIT :limit OFFSET :offset
                                 """
                 )
