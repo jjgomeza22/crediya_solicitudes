@@ -55,7 +55,7 @@ public class LoanApplicationHandler {
     @PreAuthorize("hasAuthority('ADVISOR')")
     public Mono<ServerResponse> loanApplicationToReviewUseCase(ServerRequest request) {
         var limit = request.queryParam("limit").map(Integer::parseInt).orElse(1);
-        var offset = request.queryParam("offset").map(Integer::parseInt).orElse(3);
+        var offset = request.queryParam("offset").map(Integer::parseInt).orElse(0);
         var states = Optional.ofNullable(request.queryParams().get("states")).orElse(Stream.of(StatesEnum.PE_REVIEW.toString()).toList());
 
         return this.loanApplicationToReviewUseCase.execute(limit, offset, states)

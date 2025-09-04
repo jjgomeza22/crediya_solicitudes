@@ -4,7 +4,6 @@ import co.com.crediya.security.exception.InvalidAuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -23,18 +22,22 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
         return Mono.just(authentication)
-                .map(auth -> jwtProvider.getClaims(auth.getCredentials().toString()))
+                .map(auth -> jwtProvider.validate(auth.getCredentials().toString()))
                 .onErrorResume(e -> Mono.error(new InvalidAuthException("Bad token")))
-                .map(claims -> new JwtAuthentication(
-                        claims.getSubject(),
-                        null,
-                        Stream.of(claims.get("roles"))
-                                .map(role -> (List<Map<String, String>>) role)
-                                .flatMap(role -> role.stream()
-                                        .map(r -> r.get("authority"))
-                                        .map(SimpleGrantedAuthority::new))
-                                .toList(),
-                        claims.getSubject()
-                ));
+                .map(token -> {
+                    var claims = jwtProvider.getClaims(token);
+                    return new JwtAuthentication(
+                            claims.getSubject(),
+                            null,
+                            Stream.of(claims.get("roles"))
+                                    .map(role -> (List<Map<String, String>>) role)
+                                    .flatMap(role -> role.stream()
+                                            .map(r -> r.get("authority"))
+                                            .map(SimpleGrantedAuthority::new))
+                                    .toList(),
+                            claims.getSubject(),
+                            token
+                    );
+                });
     }
 }

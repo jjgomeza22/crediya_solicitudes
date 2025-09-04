@@ -23,10 +23,10 @@ public class JwtProvider {
         return Jwts.parser().verifyWith(getKey(secret)).build().parseSignedClaims(token).getPayload().getSubject();
     }
 
-    public boolean validate(String token) {
+    public String validate(String token) {
         try {
             Jwts.parser().verifyWith(getKey(secret)).build().parseSignedClaims(token).getPayload();
-            return true;
+            return token;
         } catch (JwtException e) {
             throw new RuntimeException(e);
         } catch (IllegalArgumentException e) {
