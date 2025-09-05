@@ -2,7 +2,10 @@ package co.com.crediya.api;
 
 import co.com.crediya.api.config.ApplicationPath;
 import co.com.crediya.model.loanapplication.LoanApplication;
+import co.com.crediya.model.loanstoreview.LoanToReviewResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -32,11 +35,66 @@ public class RouterRest {
             @RouterOperation(
                     path = "/api/v1/solicitud",
                     produces = MediaType.APPLICATION_JSON_VALUE,
+                    method = RequestMethod.GET,
+                    beanClass = LoanApplicationHandler.class,
+                    beanMethod = "loanApplicationToReview",
+                    operation = @Operation(
+                            operationId = "loanApplicationToReview",
+                            summary = "Get loan applications for review",
+                            description = "Retrieves a list of loan applications to be reviewed, based on filtering by state, with pagination.",
+                            tags = {"Loan Application"},
+                            parameters = {
+                                    @Parameter(
+                                            in = ParameterIn.QUERY,
+                                            name = "limit",
+                                            description = "Maximum number of results to return.",
+                                            required = false,
+                                            schema = @Schema(type = "integer", defaultValue = "1")
+                                    ),
+                                    @Parameter(
+                                            in = ParameterIn.QUERY,
+                                            name = "offset",
+                                            description = "The number of items to skip before starting to collect the result set.",
+                                            required = false,
+                                            schema = @Schema(type = "integer", defaultValue = "0")
+                                    ),
+                                    @Parameter(
+                                            in = ParameterIn.QUERY,
+                                            name = "states",
+                                            description = "Loan application states to filter by. you could overcharge the state param to filter by one or more states => APPROVED, DECLINE, PRE_APPROVED, PE_REVIEW",
+                                            required = false,
+                                            schema = @Schema(type = "string", defaultValue = "PE_REVIEW")
+                                    )
+                            },
+                            security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "BearerAuth"),
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "200",
+                                            description = "OK: Loan applications retrieved successfully.",
+                                            content = @Content(
+                                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                                    schema = @Schema(implementation = LoanToReviewResponse.class)
+                                            )
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "401",
+                                            description = "Unauthorized: Authentication required."
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "403",
+                                            description = "Forbidden: User does not have the 'ADVISOR' authority."
+                                    )
+                            }
+                    )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/solicitud",
+                    produces = MediaType.APPLICATION_JSON_VALUE,
                     method = RequestMethod.POST,
                     beanClass = LoanApplicationHandler.class,
-                    beanMethod = "sendApplicationLoan",
+                    beanMethod = "sendLoanApplication",
                     operation = @Operation(
-                            operationId = "sendApplicationLoan",
+                            operationId = "sendLoanApplication",
                             summary = "Send new loan application",
                             description = "Send new loan application with input data.",
                             tags = {"Loan Application"},
