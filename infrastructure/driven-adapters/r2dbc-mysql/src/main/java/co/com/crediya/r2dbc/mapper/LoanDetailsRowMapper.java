@@ -14,6 +14,7 @@ public class LoanDetailsRowMapper implements BiFunction<Row, RowMetadata, LoanDe
     @Override
     public LoanDetailsDto apply(Row row, RowMetadata rowMetadata) {
         return new LoanDetailsDto(
+                row.get("id", Integer.class),
                 row.get("amount", BigDecimal.class),
                 row.get("time_limit", Integer.class),
                 row.get("email", String.class),

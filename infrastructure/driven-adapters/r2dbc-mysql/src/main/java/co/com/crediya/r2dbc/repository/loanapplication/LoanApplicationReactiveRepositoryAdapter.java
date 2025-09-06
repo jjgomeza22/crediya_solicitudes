@@ -50,6 +50,7 @@ public class LoanApplicationReactiveRepositoryAdapter extends ReactiveAdapterOpe
         Log.logInfo(method, this.getClass().getCanonicalName(), Status.EXECUTED.name());
         return this.getLoanDetails(stateIds, limit, offset)
                 .map(d -> new LoanDetails(
+                        d.id(),
                         d.amount(),
                         d.timeLimit(),
                         d.email(),
@@ -65,6 +66,7 @@ public class LoanApplicationReactiveRepositoryAdapter extends ReactiveAdapterOpe
         return databaseClient.sql(
                         """
                                 SELECT
+                                      s.id_solicitud AS id,
                                       tp.nombre AS loan_name,
                                       tp.tasa_interes AS interest_rate,
                                       s.monto AS amount,
