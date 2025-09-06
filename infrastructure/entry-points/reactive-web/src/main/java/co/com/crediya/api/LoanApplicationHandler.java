@@ -1,6 +1,7 @@
 package co.com.crediya.api;
 
 import co.com.crediya.api.dto.SendLoanApplicationDto;
+import co.com.crediya.api.dto.UpdateApplicationStateDTO;
 import co.com.crediya.api.exception.ApplicationExceptions;
 import co.com.crediya.api.mapper.LoanApplicationMapper;
 import co.com.crediya.api.validator.RequestValidator;
@@ -8,9 +9,11 @@ import co.com.crediya.log.Log;
 import co.com.crediya.log.Status;
 import co.com.crediya.model.loanapplication.LoanApplication;
 import co.com.crediya.model.states.StatesEnum;
+import co.com.crediya.model.updateapplication.UpdateApplication;
 import co.com.crediya.security.jwt.JwtAuthentication;
 import co.com.crediya.usecase.IUseCaseMono;
 import co.com.crediya.usecase.loandaplicationtoreview.LoanApplicationToReviewUseCase;
+import co.com.crediya.usecase.updateloanapplicationstate.UpdateLoanApplicationStateUseCase;
 import co.com.crediya.utils.constants.Event;
 import co.com.crediya.utils.constants.Param;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +35,7 @@ public class LoanApplicationHandler {
 
     private final IUseCaseMono<LoanApplication, String> sendLoanApplication;
     private final LoanApplicationToReviewUseCase loanApplicationToReviewUseCase;
+    private final UpdateLoanApplicationStateUseCase updateLoanApplicationStateUseCase;
     private final LoanApplicationMapper loanApplicationMapper;
 
     @PreAuthorize("hasAuthority('CLIENT')")
@@ -65,6 +69,22 @@ public class LoanApplicationHandler {
                 .doOnNext(res -> Log.logInfo(Event.LOAN_APPLICATION_TO_REVIEW, this.getClass().getCanonicalName().concat(endpoint), Status.FINALIZED.name()))
                 .flatMap(ServerResponse.ok()::bodyValue)
                 .doOnError(err -> Log.logError(Event.LOAN_APPLICATION_TO_REVIEW, this.getClass().getCanonicalName().concat(endpoint), Status.ERROR.name(), new Exception(err)));
+    }
+
+    @PreAuthorize("hasAuthority('ADVISOR')")
+    public Mono<ServerResponse> approvedOrDeclineLoanApplication(ServerRequest request) {
+        var applicationId = Integer.parseInt(request.pathVariable("id"));
+
+        var endpoint = request.path();
+        Log.logInfo(Event.APPROVED_OR_DECLINE_LOAN_APPLICATION, this.getClass().getCanonicalName().concat(endpoint), Status.EXECUTED.name());
+        return request.bodyToMono(UpdateApplicationStateDTO.class)
+                .flatMap(mono -> this.updateLoanApplicationStateUseCase.execute(new UpdateApplication(
+                                applicationId, mono.state()
+                        ))
+                )
+                .doOnNext(res -> Log.logInfo(Event.APPROVED_OR_DECLINE_LOAN_APPLICATION, this.getClass().getCanonicalName().concat(endpoint), Status.FINALIZED.name()))
+                .flatMap(ServerResponse.ok()::bodyValue)
+                .doOnError(err -> Log.logError(Event.APPROVED_OR_DECLINE_LOAN_APPLICATION, this.getClass().getCanonicalName().concat(endpoint), Status.ERROR.name(), new Exception(err)));
     }
 
     private Mono<SendLoanApplicationDto> validateCorrectEmail(Tuple2<SendLoanApplicationDto, JwtAuthentication> tuple) {

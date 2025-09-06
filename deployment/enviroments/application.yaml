@@ -39,3 +39,4 @@ docs:
 routes:
   paths:
     application: /solicitud
+    update-application: /solicitud/{id}

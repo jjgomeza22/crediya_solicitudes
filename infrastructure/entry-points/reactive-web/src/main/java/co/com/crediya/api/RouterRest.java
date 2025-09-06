@@ -125,6 +125,7 @@ public class RouterRest {
                 .GET("/", req -> ServerResponse.permanentRedirect(URI.create("/swagger-ui.html")).build())
                 .GET(applicationPath.getApplication(), handler::loanApplicationToReview)
                 .POST(applicationPath.getApplication(), handler::sendLoanApplication)
+                .PUT(applicationPath.getUpdateApplication(), handler::approvedOrDeclineLoanApplication)
                 .build();
     }
 }

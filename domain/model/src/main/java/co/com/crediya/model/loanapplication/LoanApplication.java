@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class LoanApplication {
+    private Integer id;
     private BigDecimal amount;
     private int timeLimit;
     private String email;

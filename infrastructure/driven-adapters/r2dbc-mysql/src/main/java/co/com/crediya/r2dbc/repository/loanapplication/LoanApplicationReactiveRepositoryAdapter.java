@@ -62,7 +62,16 @@ public class LoanApplicationReactiveRepositoryAdapter extends ReactiveAdapterOpe
                 .doOnError(err -> Log.logError(method, this.getClass().getCanonicalName(), Status.ERROR.name(), new Exception(err)));
     }
 
-    public Flux<LoanDetailsDto> getLoanDetails(List<Integer> stateIds, Integer limit, Integer offset) {
+    @Override
+    public Mono<LoanApplication> findApplicationById(Integer id) {
+        var method = Method.FIND_APPLICATION_BY_ID;
+        Log.logInfo(method, this.getClass().getCanonicalName(), Status.EXECUTED.name());
+        return super.findById(id)
+                .doOnNext(data -> Log.logInfo(method, this.getClass().getCanonicalName(), Status.FINALIZED.name()))
+                .doOnError(err -> Log.logError(method, this.getClass().getCanonicalName(), Status.ERROR.name(), new Exception(err)));
+    }
+
+    private Flux<LoanDetailsDto> getLoanDetails(List<Integer> stateIds, Integer limit, Integer offset) {
         return databaseClient.sql(
                         """
                                 SELECT

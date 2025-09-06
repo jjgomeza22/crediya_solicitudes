@@ -7,6 +7,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface LoanApplicationMapper {
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "stateId", constant = "4")
     LoanApplication toModel(SendLoanApplicationDto dto);
 }

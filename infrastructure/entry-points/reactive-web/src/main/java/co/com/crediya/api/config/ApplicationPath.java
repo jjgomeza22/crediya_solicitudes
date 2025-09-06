@@ -9,4 +9,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "routes.paths")
 public class ApplicationPath {
     private String application;
+    private String updateApplication;
 }
