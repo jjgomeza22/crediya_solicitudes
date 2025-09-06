@@ -1,6 +1,7 @@
 package co.com.crediya.api.config;
 
 import co.com.crediya.security.exception.InvalidAuthException;
+import co.com.crediya.usecase.exception.ApplicationNotFoundException;
 import co.com.crediya.usecase.sendapplicationloan.exception.InvalidInputException;
 import co.com.crediya.usecase.sendapplicationloan.exception.LoanTypeNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,10 +41,14 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
     private final BiFunction<Throwable, ServerRequest, Mono<ServerResponse>> handleInvalidAuth =
             (ex, req) -> handleException((InvalidAuthException) ex, req);
 
+    private final BiFunction<Throwable, ServerRequest, Mono<ServerResponse>> handleIApplicationNotFound =
+            (ex, req) -> handleException((ApplicationNotFoundException) ex, req);
+
     private final Map<Class<? extends Throwable>, BiFunction<Throwable, ServerRequest, Mono<ServerResponse>>> EXCEPTION_HANDLERS = Map.of(
             InvalidInputException.class, handleInvalidInput,
             InvalidAuthException.class, handleInvalidAuth,
-            LoanTypeNotFoundException.class, handleLoanType
+            LoanTypeNotFoundException.class, handleLoanType,
+            ApplicationNotFoundException.class, handleIApplicationNotFound
     );
 
     public GlobalExceptionHandler(ErrorAttributes errorAttributes, WebProperties.Resources resources, ApplicationContext applicationContext, ServerCodecConfigurer codecConfigurer) {
@@ -85,6 +90,13 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
     public Mono<ServerResponse> handleException(InvalidInputException ex, ServerRequest request) {
         return handleException(HttpStatus.BAD_REQUEST, ex, request, problemDetail -> {
             problemDetail.setTitle("Invalid Input");
+            problemDetail.setType(URI.create(postUserDocumentation));
+        });
+    }
+
+    public Mono<ServerResponse> handleException(ApplicationNotFoundException ex, ServerRequest request) {
+        return handleException(HttpStatus.BAD_REQUEST, ex, request, problemDetail -> {
+            problemDetail.setTitle("Invalid application id");
             problemDetail.setType(URI.create(postUserDocumentation));
         });
     }
