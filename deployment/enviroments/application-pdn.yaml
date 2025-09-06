@@ -1,0 +1,41 @@
+server:
+  port: ${PORT}
+spring:
+  application:
+    name: "crediYaSolicitudes"
+  devtools:
+    add-properties: false
+  profiles:
+    include: null
+  webflux:
+    base-path: /api/v1
+adapters:
+  r2dbc:
+    host: ${DB_HOST}
+    port: ${DB_PORT}
+    database: ${DB_DATABASE}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  consumer:
+    authentication:
+      url: ${AUTH_URL}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+jwt:
+  secret: ${JWT_SECRET}
+cors:
+  allowed-origins: ${CONF_ORIGINS}
+  allowed-paths: login,swagger,docs
+docs:
+  user-handler:
+    post-users: http://localhost:8081/webjars/swagger-ui/index.html#/Loan%20Application/sendApplicationLoan
+routes:
+  paths:
+    application: /solicitud
