@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: ${PORT}
 spring:
   application:
     name: "crediYaSolicitudes"
@@ -8,17 +8,20 @@ spring:
   profiles:
     include: null
   webflux:
-    base-path: /api/v1
+    base-path: "/api/v1"
 adapters:
   r2dbc:
-    host: "localhost"
-    port: 3306
-    database: "solicitudes"
-    username: "app_user"
-    password: "juan*201"
+    host: ${DB_HOST}
+    port: ${DB_PORT}
+    database: ${DB_DATABASE}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   consumer:
     authentication:
-      url: http://localhost:8080/api/v1
+      url: ${AUTH_URL}
+  sqs:
+    region: ${SQS_REGION}
+    queueUrl: ${SQS_QUEUE_URL}
 management:
   endpoints:
     web:
@@ -29,14 +32,15 @@ management:
       probes:
         enabled: true
 jwt:
-  secret: secretsecretsecretsecretsecretsecretsecretsecret
+  secret: ${JWT_SECRET}
 cors:
-  allowed-origins: "http://localhost:4200,http://localhost:8082"
-  allowed-paths: login,swagger,docs
+  allowed-origins: ${CONF_ORIGINS}
+  allowed-paths: "login,swagger,docs"
 docs:
   user-handler:
-    post-users: http://localhost:8082/webjars/swagger-ui/index.html#/Loan%20Application/sendApplicationLoan
+    post-users: "http://localhost:8082/webjars/swagger-ui/index.html#/Loan%20Application/sendApplicationLoan"
 routes:
   paths:
-    application: /solicitud
-    update-application: /solicitud/{id}
+    application: "/solicitud"
+    update-application: "/solicitud/{id}"
+

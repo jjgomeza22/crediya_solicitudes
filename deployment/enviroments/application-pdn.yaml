@@ -8,7 +8,7 @@ spring:
   profiles:
     include: null
   webflux:
-    base-path: /api/v1
+    base-path: "/api/v1"
 adapters:
   r2dbc:
     host: ${DB_HOST}
@@ -19,6 +19,9 @@ adapters:
   consumer:
     authentication:
       url: ${AUTH_URL}
+  sqs:
+    region: ${SQS_REGION}
+    queueUrl: ${SQS_QUEUE_URL}
 management:
   endpoints:
     web:
@@ -32,11 +35,12 @@ jwt:
   secret: ${JWT_SECRET}
 cors:
   allowed-origins: ${CONF_ORIGINS}
-  allowed-paths: login,swagger,docs
+  allowed-paths: "login,swagger,docs"
 docs:
   user-handler:
-    post-users: http://localhost:8081/webjars/swagger-ui/index.html#/Loan%20Application/sendApplicationLoan
+    post-users: "http://localhost:8082/webjars/swagger-ui/index.html#/Loan%20Application/sendApplicationLoan"
 routes:
   paths:
-    application: /solicitud
-    update-application: /solicitud/{id}
+    application: "/solicitud"
+    update-application: "/solicitud/{id}"
+
