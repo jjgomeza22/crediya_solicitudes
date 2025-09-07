@@ -1,6 +1,9 @@
 package co.com.crediya.usecase.updateloanapplicationstate;
 
+import co.com.crediya.model.loanapplication.LoanApplication;
 import co.com.crediya.model.loanapplication.gateways.LoanApplicationRepository;
+import co.com.crediya.model.loandetails.gateways.UsersByEmailGateway;
+import co.com.crediya.model.loantype.gateways.LoanTypeRepository;
 import co.com.crediya.model.states.StatesEnum;
 import co.com.crediya.model.updateapplication.UpdateApplication;
 import co.com.crediya.model.updateapplication.gateways.SQSSenderGateway;
@@ -10,10 +13,14 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 public class UpdateLoanApplicationStateUseCase implements IUseCaseMono<UpdateApplication, String> {
     private final LoanApplicationRepository loanApplicationRepository;
+    private final UsersByEmailGateway usersByEmailGateway;
     private final SQSSenderGateway sqsSenderGateway;
+    private final LoanTypeRepository loanTypeRepository;
 
     @Override
     public Mono<String> execute(UpdateApplication request) {
@@ -21,16 +28,30 @@ public class UpdateLoanApplicationStateUseCase implements IUseCaseMono<UpdateApp
                 .switchIfEmpty(ApplicationExceptions.applicationNotFound(request.getId()))
                 .doOnNext(la -> la.setStateId(StatesEnum.valueOf(request.getState().toString()).getStateId()))
                 .flatMap(la -> loanApplicationRepository.saveLoanApplication(la)
-                        .zipWith(sendSqsMessage(la.getEmail(), request.getState()))
+                        .zipWith(findUserAndLoanTypeToSend(la, request.getState()))
                 )
                 .map(Tuple2::getT1);
     }
 
-    private Mono<String> sendSqsMessage(String email, StatesEnum state) {
+    private Mono<String> findUserAndLoanTypeToSend(LoanApplication la, StatesEnum state) {
+        return usersByEmailGateway.getUsersInformation(la.getEmail())
+                .zipWith(loanTypeRepository.findById(la.getLoanTypeId()))
+                .flatMap(tuple -> {
+                    var users = tuple.getT1();
+                    var loanType = tuple.getT2();
+
+                    var username = Optional.ofNullable(users.get(0).name()).orElse("user");
+                    return sendSqsMessage(la.getEmail(), username, state, loanType.getName());
+                });
+    }
+
+    private Mono<String> sendSqsMessage(String email, String name, StatesEnum state, String loanType) {
         String message = String.format(
-                "{\"email\": \"%s\", \"state\": \"%s\"}",
+                "{\"email\": \"%s\", \"name\": \"%s\", \"state\": \"%s\", \"loanType\": \"%s\"}",
                 email,
-                state
+                name,
+                state,
+                loanType
         );
         return sqsSenderGateway.send(message);
     }
