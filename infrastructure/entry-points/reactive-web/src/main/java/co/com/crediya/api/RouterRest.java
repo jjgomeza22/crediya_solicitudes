@@ -1,12 +1,14 @@
 package co.com.crediya.api;
 
 import co.com.crediya.api.config.ApplicationPath;
+import co.com.crediya.api.dto.UpdateApplicationStateDTO;
 import co.com.crediya.model.loanapplication.LoanApplication;
 import co.com.crediya.model.loanstoreview.LoanToReviewResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -116,6 +118,81 @@ public class RouterRest {
                                             responseCode = "404",
                                             description = "Not-Found: Loan type not found"
                                     ),
+                            }
+                    )
+            ),
+            @RouterOperation(
+                    path = "/solicitud/{id}",
+                    produces = MediaType.APPLICATION_JSON_VALUE,
+                    method = RequestMethod.PUT,
+                    beanClass = LoanApplicationHandler.class,
+                    beanMethod = "approvedOrDeclineLoanApplication",
+                    operation = @Operation(
+                            operationId = "approvedOrDeclineLoanApplication",
+                            summary = "Approved or decline a loan application",
+                            description = "Update the state of a loan application by its ID.",
+                            tags = {"Loan Application"},
+                            parameters = {
+                                    @Parameter(
+                                            in = ParameterIn.PATH,
+                                            name = "id",
+                                            description = "The ID of the loan application to update",
+                                            required = true,
+                                            schema = @Schema(type = "integer", format = "int32")
+                                    )
+                            },
+                            requestBody = @RequestBody(
+                                    description = "The new state of the loan application (APPROVED or DECLINE)",
+                                    required = true,
+                                    content = @Content(
+                                            schema = @Schema(implementation = UpdateApplicationStateDTO.class)
+                                    )
+                            ),
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "200",
+                                            description = "OK: The loan application has been updated successfully",
+                                            content = @Content(
+                                                    mediaType = MediaType.TEXT_PLAIN_VALUE,
+                                                    schema = @Schema(implementation = String.class)
+                                            )
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "400",
+                                            description = "Bad Request: Invalid Sate provided",
+                                            content = @Content(
+                                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                                    examples = @ExampleObject(
+                                                            value = """
+                                                                    {
+                                                                        "type": "about:blank",
+                                                                        "title": "Invalid Input",
+                                                                        "status": 400,
+                                                                        "detail": "Missing or invalid sate, should be APPROVED or DECLINE",
+                                                                        "instance": "/solicitud/200"
+                                                                    }
+                                                                    """
+                                                    )
+                                            )
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "404",
+                                            description = "Not Found: The loan application with the given ID was not found",
+                                            content = @Content(
+                                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                                    examples = @ExampleObject(
+                                                            value = """
+                                                                    {
+                                                                      "type": "about:blank",
+                                                                      "title": "Invalid application id",
+                                                                      "status": 404,
+                                                                      "detail": "Application [id=200] is not found",
+                                                                      "instance": "/solicitud/200"
+                                                                    }
+                                                                    """
+                                                    )
+                                            )
+                                    )
                             }
                     )
             )

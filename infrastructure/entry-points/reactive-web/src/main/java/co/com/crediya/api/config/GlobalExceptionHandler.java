@@ -95,9 +95,8 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
     }
 
     public Mono<ServerResponse> handleException(ApplicationNotFoundException ex, ServerRequest request) {
-        return handleException(HttpStatus.BAD_REQUEST, ex, request, problemDetail -> {
+        return handleException(HttpStatus.NOT_FOUND, ex, request, problemDetail -> {
             problemDetail.setTitle("Invalid application id");
-            problemDetail.setType(URI.create(postUserDocumentation));
         });
     }
 

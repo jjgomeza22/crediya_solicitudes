@@ -4,7 +4,8 @@ import co.com.crediya.api.dto.SendLoanApplicationDto;
 import co.com.crediya.api.dto.UpdateApplicationStateDTO;
 import co.com.crediya.api.exception.ApplicationExceptions;
 import co.com.crediya.api.mapper.LoanApplicationMapper;
-import co.com.crediya.api.validator.RequestValidator;
+import co.com.crediya.api.validator.SendLoanApplicationValidator;
+import co.com.crediya.api.validator.UpdateApplicationStateValidator;
 import co.com.crediya.log.Log;
 import co.com.crediya.log.Status;
 import co.com.crediya.model.loanapplication.LoanApplication;
@@ -43,7 +44,7 @@ public class LoanApplicationHandler {
         var endpoint = request.path();
         Log.logInfo(Event.SEND_LOAN_APPLICATION, this.getClass().getCanonicalName().concat(endpoint), Status.EXECUTED.name());
         return request.bodyToMono(SendLoanApplicationDto.class)
-                .transform(RequestValidator.validate())
+                .transform(SendLoanApplicationValidator.validate())
                 .zipWith(ReactiveSecurityContextHolder.getContext()
                         .map(SecurityContext::getAuthentication)
                         .cast(JwtAuthentication.class)
@@ -78,6 +79,7 @@ public class LoanApplicationHandler {
         var endpoint = request.path();
         Log.logInfo(Event.APPROVED_OR_DECLINE_LOAN_APPLICATION, this.getClass().getCanonicalName().concat(endpoint), Status.EXECUTED.name());
         return request.bodyToMono(UpdateApplicationStateDTO.class)
+                .transform(UpdateApplicationStateValidator.validate())
                 .flatMap(mono -> this.updateLoanApplicationStateUseCase.execute(new UpdateApplication(
                                 applicationId, mono.state()
                         ))

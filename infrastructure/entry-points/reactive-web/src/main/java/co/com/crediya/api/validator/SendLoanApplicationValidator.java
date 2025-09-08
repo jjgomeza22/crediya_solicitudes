@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
-public class RequestValidator {
+public class SendLoanApplicationValidator {
     public static UnaryOperator<Mono<SendLoanApplicationDto>> validate() {
         return mono -> mono
                 .filter(missingAmount())

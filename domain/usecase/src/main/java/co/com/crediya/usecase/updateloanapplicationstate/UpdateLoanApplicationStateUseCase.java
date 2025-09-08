@@ -26,14 +26,14 @@ public class UpdateLoanApplicationStateUseCase implements IUseCaseMono<UpdateApp
     public Mono<String> execute(UpdateApplication request) {
         return loanApplicationRepository.findApplicationById(request.getId())
                 .switchIfEmpty(ApplicationExceptions.applicationNotFound(request.getId()))
-                .doOnNext(la -> la.setStateId(StatesEnum.valueOf(request.getState().toString()).getStateId()))
+                .doOnNext(la -> la.setStateId(StatesEnum.valueOf(request.getState()).getStateId()))
                 .flatMap(la -> loanApplicationRepository.saveLoanApplication(la)
                         .zipWith(findUserAndLoanTypeToSend(la, request.getState()))
                 )
                 .map(Tuple2::getT1);
     }
 
-    private Mono<String> findUserAndLoanTypeToSend(LoanApplication la, StatesEnum state) {
+    private Mono<String> findUserAndLoanTypeToSend(LoanApplication la, String state) {
         return usersByEmailGateway.getUsersInformation(la.getEmail())
                 .zipWith(loanTypeRepository.findById(la.getLoanTypeId()))
                 .flatMap(tuple -> {
@@ -45,7 +45,7 @@ public class UpdateLoanApplicationStateUseCase implements IUseCaseMono<UpdateApp
                 });
     }
 
-    private Mono<String> sendSqsMessage(String email, String name, StatesEnum state, String loanType) {
+    private Mono<String> sendSqsMessage(String email, String name, String state, String loanType) {
         String message = String.format(
                 "{\"email\": \"%s\", \"name\": \"%s\", \"state\": \"%s\", \"loanType\": \"%s\"}",
                 email,

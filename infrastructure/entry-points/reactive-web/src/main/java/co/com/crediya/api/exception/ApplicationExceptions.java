@@ -19,4 +19,8 @@ public class ApplicationExceptions {
     public static <T> Mono<T> missingLoanType() {
         return Mono.error(new InvalidInputException("Missing LoanType"));
     }
+
+    public static <T> Mono<T> invalidState() {
+        return Mono.error(new InvalidInputException("Missing or invalid sate, should be APPROVED or DECLINE"));
+    }
 }
