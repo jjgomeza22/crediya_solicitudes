@@ -4,6 +4,7 @@ import co.com.crediya.model.loanapplication.gateways.LoanApplicationRepository;
 import co.com.crediya.model.loandetails.LoanDetails;
 import co.com.crediya.model.loandetails.gateways.UsersByEmailGateway;
 import co.com.crediya.model.loandetails.gateways.dto.UserByEmailDto;
+import co.com.crediya.usecase.sendapplicationloan.exception.InvalidInputException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,6 +32,7 @@ class LoanApplicationToReviewUseCaseTest {
     @Test
     void shouldGetLoanApplicationDetails() {
         var loanDetail = new LoanDetails(
+                1,
                 new BigDecimal(1000000),
                 48,
                 "juan@mail.com",
@@ -55,6 +57,14 @@ class LoanApplicationToReviewUseCaseTest {
                 .expectNextMatches(loanUser -> loanUser.totalMonthlyDebt().compareTo(new BigDecimal("31159.65")) == 0)
                 .verifyComplete();
 
+    }
+
+    @Test
+    void shouldReturnInvalidInputExceptionByWrongState() {
+        loanApplicationToReviewUseCase.execute(5, 0, List.of("APROVED"))
+                .as(StepVerifier::create)
+                .expectError(InvalidInputException.class)
+                .verify();
     }
 
 }
