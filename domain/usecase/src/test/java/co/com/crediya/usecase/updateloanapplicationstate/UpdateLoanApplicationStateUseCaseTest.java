@@ -2,7 +2,7 @@ package co.com.crediya.usecase.updateloanapplicationstate;
 
 import co.com.crediya.model.loanapplication.LoanApplication;
 import co.com.crediya.model.loanapplication.gateways.LoanApplicationRepository;
-import co.com.crediya.model.loandetails.gateways.UsersByEmailGateway;
+import co.com.crediya.model.loandetails.gateways.AuthenticationGateway;
 import co.com.crediya.model.loandetails.gateways.dto.UserByEmailDto;
 import co.com.crediya.model.loantype.LoanType;
 import co.com.crediya.model.loantype.gateways.LoanTypeRepository;
@@ -30,7 +30,7 @@ class UpdateLoanApplicationStateUseCaseTest {
     @Mock
     LoanApplicationRepository loanApplicationRepository;
     @Mock
-    UsersByEmailGateway usersByEmailGateway;
+    AuthenticationGateway authenticationGateway;
     @Mock
     SQSSenderGateway sqsSenderGateway;
     @Mock
@@ -72,7 +72,7 @@ class UpdateLoanApplicationStateUseCaseTest {
         Mockito.when(loanApplicationRepository.saveLoanApplication(Mockito.any(LoanApplication.class)))
                 .thenReturn(Mono.just("OK"));
 
-        Mockito.when(usersByEmailGateway.getUsersInformation(Mockito.anyString()))
+        Mockito.when(authenticationGateway.getUsersInformation(Mockito.anyString()))
                 .thenReturn(Mono.just(List.of(user)));
 
         Mockito.when(loanTypeRepository.findById(Mockito.anyInt()))

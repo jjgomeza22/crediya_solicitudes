@@ -2,7 +2,7 @@ package co.com.crediya.usecase.loandaplicationtoreview;
 
 import co.com.crediya.model.loanapplication.gateways.LoanApplicationRepository;
 import co.com.crediya.model.loandetails.LoanDetails;
-import co.com.crediya.model.loandetails.gateways.UsersByEmailGateway;
+import co.com.crediya.model.loandetails.gateways.AuthenticationGateway;
 import co.com.crediya.model.loandetails.gateways.dto.UserByEmailDto;
 import co.com.crediya.usecase.sendapplicationloan.exception.InvalidInputException;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ class LoanApplicationToReviewUseCaseTest {
     LoanApplicationRepository loanApplicationRepository;
 
     @Mock
-    UsersByEmailGateway usersByEmailGateway;
+    AuthenticationGateway authenticationGateway;
 
     @Test
     void shouldGetLoanApplicationDetails() {
@@ -50,7 +50,7 @@ class LoanApplicationToReviewUseCaseTest {
 
         Mockito.when(loanApplicationRepository.getPendingLoanApplications(Mockito.anyInt(), Mockito.anyInt(), Mockito.any(List.class)))
                 .thenReturn(Flux.just(loanDetail));
-        Mockito.when(usersByEmailGateway.getUsersInformation(Mockito.anyString())).thenReturn(Mono.just(List.of(user)));
+        Mockito.when(authenticationGateway.getUsersInformation(Mockito.anyString())).thenReturn(Mono.just(List.of(user)));
 
         loanApplicationToReviewUseCase.execute(5, 0, List.of("APPROVED"))
                 .as(StepVerifier::create)

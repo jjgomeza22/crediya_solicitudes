@@ -7,6 +7,9 @@ public class Method {
     public static final String FIND_STATUS_BY_ID = "findById";
     public static final String FIND_APPLICATION_BY_ID = "findApplicationById";
 
+    public static final String SEND_EMAIL_QUEUE = "sendEmailQueue";
+    public static final String SEND_DEBT_CAPACITY_QUEUE = "sendDebtCapacityQueue";
+
     private Method() {
     }
 }

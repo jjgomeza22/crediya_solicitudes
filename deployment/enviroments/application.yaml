@@ -21,7 +21,8 @@ adapters:
       url: ${AUTH_URL}
   sqs:
     region: ${SQS_REGION}
-    queueUrl: ${SQS_QUEUE_URL}
+    queueEmailUrl: ${SQS_QUEUE_EMAIL_URL}
+    queueDebtCapacityUrl: ${SQS_QUEUE_DEBT_CAPACITY_URL}
 management:
   endpoints:
     web:

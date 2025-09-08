@@ -2,7 +2,7 @@ package co.com.crediya.consumer.client;
 
 import co.com.crediya.log.Log;
 import co.com.crediya.log.Status;
-import co.com.crediya.model.loandetails.gateways.UsersByEmailGateway;
+import co.com.crediya.model.loandetails.gateways.AuthenticationGateway;
 import co.com.crediya.model.loandetails.gateways.dto.UserByEmailDto;
 import co.com.crediya.security.exception.InvalidAuthException;
 import co.com.crediya.security.jwt.JwtAuthentication;
@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class AuthenticationServiceClient implements UsersByEmailGateway {
+public class AuthenticationServiceClient implements AuthenticationGateway {
     private final WebClient webClient;
     private String usersPath = "/usuarios";
 

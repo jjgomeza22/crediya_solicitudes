@@ -2,7 +2,7 @@ package co.com.crediya.usecase.updateloanapplicationstate;
 
 import co.com.crediya.model.loanapplication.LoanApplication;
 import co.com.crediya.model.loanapplication.gateways.LoanApplicationRepository;
-import co.com.crediya.model.loandetails.gateways.UsersByEmailGateway;
+import co.com.crediya.model.loandetails.gateways.AuthenticationGateway;
 import co.com.crediya.model.loantype.gateways.LoanTypeRepository;
 import co.com.crediya.model.states.StatesEnum;
 import co.com.crediya.model.updateapplication.UpdateApplication;
@@ -18,7 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UpdateLoanApplicationStateUseCase implements IUseCaseMono<UpdateApplication, String> {
     private final LoanApplicationRepository loanApplicationRepository;
-    private final UsersByEmailGateway usersByEmailGateway;
+    private final AuthenticationGateway authenticationGateway;
     private final SQSSenderGateway sqsSenderGateway;
     private final LoanTypeRepository loanTypeRepository;
 
@@ -34,7 +34,7 @@ public class UpdateLoanApplicationStateUseCase implements IUseCaseMono<UpdateApp
     }
 
     private Mono<String> findUserAndLoanTypeToSend(LoanApplication la, String state) {
-        return usersByEmailGateway.getUsersInformation(la.getEmail())
+        return authenticationGateway.getUsersInformation(la.getEmail())
                 .zipWith(loanTypeRepository.findById(la.getLoanTypeId()))
                 .flatMap(tuple -> {
                     var users = tuple.getT1();
@@ -53,6 +53,6 @@ public class UpdateLoanApplicationStateUseCase implements IUseCaseMono<UpdateApp
                 state,
                 loanType
         );
-        return sqsSenderGateway.send(message);
+        return sqsSenderGateway.sendEmailQueue(message);
     }
 }

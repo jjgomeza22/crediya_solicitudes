@@ -5,6 +5,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public interface UsersByEmailGateway {
+public interface AuthenticationGateway {
     Mono<List<UserByEmailDto>> getUsersInformation(String emails);
 }

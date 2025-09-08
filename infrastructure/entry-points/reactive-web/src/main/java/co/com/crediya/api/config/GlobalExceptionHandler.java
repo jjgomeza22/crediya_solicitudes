@@ -2,6 +2,7 @@ package co.com.crediya.api.config;
 
 import co.com.crediya.security.exception.InvalidAuthException;
 import co.com.crediya.usecase.exception.ApplicationNotFoundException;
+import co.com.crediya.usecase.exception.UserNotFoundException;
 import co.com.crediya.usecase.sendapplicationloan.exception.InvalidInputException;
 import co.com.crediya.usecase.sendapplicationloan.exception.LoanTypeNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,11 +45,15 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
     private final BiFunction<Throwable, ServerRequest, Mono<ServerResponse>> handleIApplicationNotFound =
             (ex, req) -> handleException((ApplicationNotFoundException) ex, req);
 
+    private final BiFunction<Throwable, ServerRequest, Mono<ServerResponse>> handleUserNotFound =
+            (ex, req) -> handleException((UserNotFoundException) ex, req);
+
     private final Map<Class<? extends Throwable>, BiFunction<Throwable, ServerRequest, Mono<ServerResponse>>> EXCEPTION_HANDLERS = Map.of(
             InvalidInputException.class, handleInvalidInput,
             InvalidAuthException.class, handleInvalidAuth,
             LoanTypeNotFoundException.class, handleLoanType,
-            ApplicationNotFoundException.class, handleIApplicationNotFound
+            ApplicationNotFoundException.class, handleIApplicationNotFound,
+            UserNotFoundException.class, handleUserNotFound
     );
 
     public GlobalExceptionHandler(ErrorAttributes errorAttributes, WebProperties.Resources resources, ApplicationContext applicationContext, ServerCodecConfigurer codecConfigurer) {
@@ -95,9 +100,11 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
     }
 
     public Mono<ServerResponse> handleException(ApplicationNotFoundException ex, ServerRequest request) {
-        return handleException(HttpStatus.NOT_FOUND, ex, request, problemDetail -> {
-            problemDetail.setTitle("Invalid application id");
-        });
+        return handleException(HttpStatus.NOT_FOUND, ex, request, problemDetail -> problemDetail.setTitle("Invalid application id"));
+    }
+
+    public Mono<ServerResponse> handleException(UserNotFoundException ex, ServerRequest request) {
+        return handleException(HttpStatus.NOT_FOUND, ex, request, problemDetail -> problemDetail.setTitle("Invalid email"));
     }
 
     private Mono<ServerResponse> handleException(HttpStatus status, Exception ex, ServerRequest request, Consumer<ProblemDetail> problem) {

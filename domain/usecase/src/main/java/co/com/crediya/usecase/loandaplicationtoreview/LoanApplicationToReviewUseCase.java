@@ -2,7 +2,7 @@ package co.com.crediya.usecase.loandaplicationtoreview;
 
 import co.com.crediya.model.loanapplication.gateways.LoanApplicationRepository;
 import co.com.crediya.model.loandetails.LoanDetails;
-import co.com.crediya.model.loandetails.gateways.UsersByEmailGateway;
+import co.com.crediya.model.loandetails.gateways.AuthenticationGateway;
 import co.com.crediya.model.loandetails.gateways.dto.UserByEmailDto;
 import co.com.crediya.model.loanstoreview.LoanToReviewResponse;
 import co.com.crediya.model.states.StatesEnum;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LoanApplicationToReviewUseCase {
     private final LoanApplicationRepository loanApplicationRepository;
-    private final UsersByEmailGateway usersByEmailGateway;
+    private final AuthenticationGateway authenticationGateway;
 
     public Flux<LoanToReviewResponse> execute(Integer limit, Integer offset, List<String> states) {
         Mono<List<LoanDetails>> allLoanDetails = this.getLoanApplicationDetails(limit, offset, states).share();
@@ -46,7 +46,7 @@ public class LoanApplicationToReviewUseCase {
                         .distinct()
                         .collect(Collectors.joining(","))
                 )
-                .flatMap(usersByEmailGateway::getUsersInformation)
+                .flatMap(authenticationGateway::getUsersInformation)
                 .map(users -> users.stream()
                         .collect(Collectors.toMap(UserByEmailDto::email, user -> user))
                 );
