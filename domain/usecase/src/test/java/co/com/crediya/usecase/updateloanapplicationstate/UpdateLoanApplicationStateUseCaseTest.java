@@ -38,7 +38,7 @@ class UpdateLoanApplicationStateUseCaseTest {
 
     private final UpdateApplication updateApplication = new UpdateApplication(
             2,
-            StatesEnum.APPROVED
+            "APPROVED"
     );
 
     @Test
