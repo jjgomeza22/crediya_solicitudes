@@ -46,7 +46,7 @@ class SendLoanApplicationUseCaseTest {
                 .build();
 
         Mockito.when(loanTypeRepository.findById(Mockito.anyInt())).thenReturn(Mono.just(loanType));
-        Mockito.when(loanApplicationRepository.saveLoanApplication(Mockito.any(LoanApplication.class))).thenReturn(Mono.just("OK"));
+            Mockito.when(loanApplicationRepository.saveLoanApplication(Mockito.any(LoanApplication.class))).thenReturn(Mono.just(loanApplication));
 
         sendLoanApplicationUseCase.execute(loanApplication)
                 .as(StepVerifier::create)

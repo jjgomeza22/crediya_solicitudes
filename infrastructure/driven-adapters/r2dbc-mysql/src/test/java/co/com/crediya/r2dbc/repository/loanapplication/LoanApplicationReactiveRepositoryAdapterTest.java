@@ -44,12 +44,13 @@ class LoanApplicationReactiveRepositoryAdapterTest {
     @Test
     void shouldSendLoanApplication() {
         Mockito.when(mapper.map(loanApplication, LoanApplicationEntity.class)).thenReturn(loanApplicationEntity);
+        Mockito.when(mapper.map(loanApplicationEntity, LoanApplication.class)).thenReturn(loanApplication);
 
         Mockito.when(loanApplicationReactiveRepository.save(loanApplicationEntity)).thenReturn(Mono.just(loanApplicationEntity));
 
         loanApplicationReactiveRepositoryAdapter.saveLoanApplication(loanApplication)
                 .as(StepVerifier::create)
-                .expectNext("OK")
+                .expectNextMatches(la -> la.getEmail().equals("juan@mail.com"))
                 .verifyComplete();
     }
 }

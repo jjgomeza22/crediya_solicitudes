@@ -19,7 +19,8 @@ public class UpdateApplicationStateValidator {
     private static Predicate<UpdateApplicationStateDTO> invalidState() {
         return dto -> Objects.nonNull(dto.state()) && (
                 StatesEnum.APPROVED.toString().equals(dto.state()) ||
-                StatesEnum.DECLINE.toString().equals(dto.state())
+                StatesEnum.DECLINE.toString().equals(dto.state()) ||
+                StatesEnum.PRE_APPROVED.toString().equals(dto.state())
         );
     }
 }

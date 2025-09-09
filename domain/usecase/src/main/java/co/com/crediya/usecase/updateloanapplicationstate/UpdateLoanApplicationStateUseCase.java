@@ -28,6 +28,7 @@ public class UpdateLoanApplicationStateUseCase implements IUseCaseMono<UpdateApp
                 .switchIfEmpty(ApplicationExceptions.applicationNotFound(request.getId()))
                 .doOnNext(la -> la.setStateId(StatesEnum.valueOf(request.getState()).getStateId()))
                 .flatMap(la -> loanApplicationRepository.saveLoanApplication(la)
+                        .thenReturn("OK")
                         .zipWith(findUserAndLoanTypeToSend(la, request.getState()))
                 )
                 .map(Tuple2::getT1);

@@ -6,14 +6,12 @@ import co.com.crediya.model.loandetails.gateways.AuthenticationGateway;
 import co.com.crediya.model.loandetails.gateways.dto.UserByEmailDto;
 import co.com.crediya.model.loanstoreview.LoanToReviewResponse;
 import co.com.crediya.model.states.StatesEnum;
+import co.com.crediya.usecase.gettotaldebt.GetTotalDebtUseCase;
 import co.com.crediya.usecase.sendapplicationloan.exception.InvalidInputException;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,6 +20,7 @@ import java.util.stream.Collectors;
 public class LoanApplicationToReviewUseCase {
     private final LoanApplicationRepository loanApplicationRepository;
     private final AuthenticationGateway authenticationGateway;
+    private final GetTotalDebtUseCase getTotalDebtUseCase;
 
     public Flux<LoanToReviewResponse> execute(Integer limit, Integer offset, List<String> states) {
         Mono<List<LoanDetails>> allLoanDetails = this.getLoanApplicationDetails(limit, offset, states).share();
@@ -68,30 +67,10 @@ public class LoanApplicationToReviewUseCase {
                                                 user.name(),
                                                 user.email(),
                                                 user.baseSalary(),
-                                                getTotalMonthlyDebt(loans),
+                                                getTotalDebtUseCase.execute(loans),
                                                 loans
                                         );
                                     }));
                 });
-    }
-
-    private BigDecimal getTotalMonthlyDebt(List<LoanDetails> loanDetails) {
-        return loanDetails.stream()
-                .filter(loan -> loan.state().equals(StatesEnum.APPROVED.getName()))
-                .map(loan -> calculateMonthlyPayment(loan.amount(), loan.interestRate(), loan.timeLimit()))
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .setScale(2, RoundingMode.HALF_UP);
-    }
-
-    private BigDecimal calculateMonthlyPayment(BigDecimal principal, BigDecimal monthlyInterestRate, int termInMonths) {
-        if (monthlyInterestRate.compareTo(BigDecimal.ZERO) == 0) {
-            return principal.divide(new BigDecimal(termInMonths), MathContext.DECIMAL128);
-        }
-        BigDecimal ratePlusOne = monthlyInterestRate.add(BigDecimal.ONE);
-        BigDecimal numerator = monthlyInterestRate.multiply(ratePlusOne.pow(termInMonths));
-        BigDecimal denominator = ratePlusOne.pow(termInMonths).subtract(BigDecimal.ONE);
-
-        return principal.multiply(numerator.divide(denominator, MathContext.DECIMAL128))
-                .setScale(2, RoundingMode.HALF_UP);
     }
 }
