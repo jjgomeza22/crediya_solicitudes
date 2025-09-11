@@ -28,7 +28,7 @@ public class UpdateLoanApplicationStateUseCase implements IUseCaseMono<UpdateApp
                 .switchIfEmpty(ApplicationExceptions.applicationNotFound(request.getId()))
                 .doOnNext(la -> la.setStateId(StatesEnum.valueOf(request.getState()).getStateId()))
                 .flatMap(la -> loanApplicationRepository.saveLoanApplication(la)
-                        .then(sendSqsApprovedReportMessage(request))
+                        .flatMap(saveLa -> sendSqsApprovedReportMessage(request, saveLa))
                         .zipWith(findUserAndLoanTypeToSend(la, request.getState()))
                 )
                 .map(Tuple2::getT1);
@@ -57,12 +57,13 @@ public class UpdateLoanApplicationStateUseCase implements IUseCaseMono<UpdateApp
         return sqsSenderGateway.sendEmailQueue(message);
     }
 
-    private Mono<String> sendSqsApprovedReportMessage(UpdateApplication request) {
+    private Mono<String> sendSqsApprovedReportMessage(UpdateApplication request, LoanApplication loanApplication) {
         if (StatesEnum.valueOf(request.getState()) == StatesEnum.APPROVED) {
             String message = String.format(
-                    "{\"loanId\": \"%d\", \"state\": \"%s\"}",
+                    "{\"loanId\": \"%d\", \"state\": \"%s\", \"amount\": \"%f\"}",
                     request.getId(),
-                    request.getState()
+                    request.getState(),
+                    loanApplication.getAmount()
             );
             return sqsSenderGateway.sendApprovedReportQueue(message)
                     .thenReturn("OK");

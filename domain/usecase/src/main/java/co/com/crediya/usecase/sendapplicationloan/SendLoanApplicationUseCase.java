@@ -46,7 +46,8 @@ public class SendLoanApplicationUseCase implements IUseCaseMono<LoanApplication,
                             .collectList()
                     )
                     .flatMap(tuple -> this.buildSqsMessage(tuple, loanType, loanApplication))
-                    .flatMap(sqsSenderGateway::sendDebtCapacityQueue);
+                    .flatMap(sqsSenderGateway::sendDebtCapacityQueue)
+                    .thenReturn("OK");
         }
         return Mono.just("OK");
     }
