@@ -70,7 +70,7 @@ class UpdateLoanApplicationStateUseCaseTest {
                         .thenReturn(Mono.just(application));
 
         Mockito.when(loanApplicationRepository.saveLoanApplication(Mockito.any(LoanApplication.class)))
-                .thenReturn(Mono.just("OK"));
+                .thenReturn(Mono.just(application));
 
         Mockito.when(authenticationGateway.getUsersInformation(Mockito.anyString()))
                 .thenReturn(Mono.just(List.of(user)));
@@ -78,7 +78,10 @@ class UpdateLoanApplicationStateUseCaseTest {
         Mockito.when(loanTypeRepository.findById(Mockito.anyInt()))
                 .thenReturn(Mono.just(loanType));
 
-        Mockito.when(sqsSenderGateway.send(Mockito.anyString()))
+        Mockito.when(sqsSenderGateway.sendEmailQueue(Mockito.anyString()))
+                .thenReturn(Mono.just("354tgfdas-24ref"));
+
+        Mockito.when(sqsSenderGateway.sendApprovedReportQueue(Mockito.anyString()))
                 .thenReturn(Mono.just("354tgfdas-24ref"));
 
         updateLoanApplicationStateUseCase.execute(updateApplication)

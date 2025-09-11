@@ -4,6 +4,7 @@ import co.com.crediya.model.loanapplication.gateways.LoanApplicationRepository;
 import co.com.crediya.model.loandetails.LoanDetails;
 import co.com.crediya.model.loandetails.gateways.AuthenticationGateway;
 import co.com.crediya.model.loandetails.gateways.dto.UserByEmailDto;
+import co.com.crediya.usecase.gettotaldebt.GetTotalDebtUseCase;
 import co.com.crediya.usecase.sendapplicationloan.exception.InvalidInputException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +30,9 @@ class LoanApplicationToReviewUseCaseTest {
     @Mock
     AuthenticationGateway authenticationGateway;
 
+    @Mock
+    GetTotalDebtUseCase getTotalDebtUseCase;
+
     @Test
     void shouldGetLoanApplicationDetails() {
         var loanDetail = new LoanDetails(
@@ -52,9 +56,11 @@ class LoanApplicationToReviewUseCaseTest {
                 .thenReturn(Flux.just(loanDetail));
         Mockito.when(authenticationGateway.getUsersInformation(Mockito.anyString())).thenReturn(Mono.just(List.of(user)));
 
+        Mockito.when(getTotalDebtUseCase.execute(Mockito.any(List.class))).thenReturn(BigDecimal.ZERO);
+
         loanApplicationToReviewUseCase.execute(5, 0, List.of("APPROVED"))
                 .as(StepVerifier::create)
-                .expectNextMatches(loanUser -> loanUser.totalMonthlyDebt().compareTo(new BigDecimal("31159.65")) == 0)
+                .expectNextMatches(loanUser -> loanUser.totalMonthlyDebt().compareTo(BigDecimal.ZERO) == 0)
                 .verifyComplete();
 
     }
