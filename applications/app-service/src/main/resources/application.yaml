@@ -23,6 +23,7 @@ adapters:
     region: ${SQS_REGION}
     queueEmailUrl: ${SQS_QUEUE_EMAIL_URL}
     queueDebtCapacityUrl: ${SQS_QUEUE_DEBT_CAPACITY_URL}
+    queueApprovedReportUrl: ${SQS_QUEUE_APPROVED_REPORT_URL}
 management:
   endpoints:
     web:

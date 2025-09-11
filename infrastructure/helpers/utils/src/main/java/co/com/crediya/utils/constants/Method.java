@@ -9,6 +9,7 @@ public class Method {
 
     public static final String SEND_EMAIL_QUEUE = "sendEmailQueue";
     public static final String SEND_DEBT_CAPACITY_QUEUE = "sendDebtCapacityQueue";
+    public static final String SEND_APPROVED_REPORT_QUEUE = "sendApprovedReportQueue";
 
     private Method() {
     }

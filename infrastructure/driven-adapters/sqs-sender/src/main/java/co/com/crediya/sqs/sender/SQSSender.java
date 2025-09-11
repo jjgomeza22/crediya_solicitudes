@@ -42,6 +42,17 @@ public class SQSSender implements SQSSenderGateway {
                 .map(SendMessageResponse::messageId);
     }
 
+    @Override
+    public Mono<String> sendApprovedReportQueue(String message) {
+        var method = Method.SEND_APPROVED_REPORT_QUEUE;
+        Log.logInfo(method, this.getClass().getCanonicalName(), Status.EXECUTED.name());
+        return Mono.fromCallable(() -> buildRequest(message, properties.queueApprovedReportUrl()))
+                .flatMap(request -> Mono.fromFuture(client.sendMessage(request)))
+                .doOnNext(usr -> Log.logInfo(method, this.getClass().getCanonicalName(), Status.FINALIZED.name()))
+                .doOnError(err -> Log.logError(method, this.getClass().getCanonicalName(), Status.ERROR.name(), new Exception(err)))
+                .map(SendMessageResponse::messageId);
+    }
+
     private SendMessageRequest buildRequest(String message, String queueUrl) {
         return SendMessageRequest.builder()
                 .queueUrl(queueUrl)

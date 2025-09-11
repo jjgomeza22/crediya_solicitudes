@@ -28,7 +28,7 @@ public class UpdateLoanApplicationStateUseCase implements IUseCaseMono<UpdateApp
                 .switchIfEmpty(ApplicationExceptions.applicationNotFound(request.getId()))
                 .doOnNext(la -> la.setStateId(StatesEnum.valueOf(request.getState()).getStateId()))
                 .flatMap(la -> loanApplicationRepository.saveLoanApplication(la)
-                        .thenReturn("OK")
+                        .then(sendSqsApprovedReportMessage(request))
                         .zipWith(findUserAndLoanTypeToSend(la, request.getState()))
                 )
                 .map(Tuple2::getT1);
@@ -42,11 +42,11 @@ public class UpdateLoanApplicationStateUseCase implements IUseCaseMono<UpdateApp
                     var loanType = tuple.getT2();
 
                     var username = Optional.ofNullable(users.get(0).name()).orElse("user");
-                    return sendSqsMessage(la.getEmail(), username, state, loanType.getName());
+                    return sendSqsEmailMessage(la.getEmail(), username, state, loanType.getName());
                 });
     }
 
-    private Mono<String> sendSqsMessage(String email, String name, String state, String loanType) {
+    private Mono<String> sendSqsEmailMessage(String email, String name, String state, String loanType) {
         String message = String.format(
                 "{\"email\": \"%s\", \"name\": \"%s\", \"state\": \"%s\", \"loanType\": \"%s\"}",
                 email,
@@ -55,5 +55,18 @@ public class UpdateLoanApplicationStateUseCase implements IUseCaseMono<UpdateApp
                 loanType
         );
         return sqsSenderGateway.sendEmailQueue(message);
+    }
+
+    private Mono<String> sendSqsApprovedReportMessage(UpdateApplication request) {
+        if (StatesEnum.valueOf(request.getState()) == StatesEnum.APPROVED) {
+            String message = String.format(
+                    "{\"loanId\": \"%d\", \"state\": \"%s\"}",
+                    request.getId(),
+                    request.getState()
+            );
+            return sqsSenderGateway.sendApprovedReportQueue(message)
+                    .thenReturn("OK");
+        }
+        return Mono.just("OK");
     }
 }
