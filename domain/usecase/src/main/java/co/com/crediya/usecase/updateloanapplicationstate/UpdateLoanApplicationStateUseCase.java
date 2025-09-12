@@ -3,6 +3,7 @@ package co.com.crediya.usecase.updateloanapplicationstate;
 import co.com.crediya.model.loanapplication.LoanApplication;
 import co.com.crediya.model.loanapplication.gateways.LoanApplicationRepository;
 import co.com.crediya.model.loandetails.gateways.AuthenticationGateway;
+import co.com.crediya.model.loantype.LoanType;
 import co.com.crediya.model.loantype.gateways.LoanTypeRepository;
 import co.com.crediya.model.states.StatesEnum;
 import co.com.crediya.model.updateapplication.UpdateApplication;
@@ -28,8 +29,8 @@ public class UpdateLoanApplicationStateUseCase implements IUseCaseMono<UpdateApp
                 .switchIfEmpty(ApplicationExceptions.applicationNotFound(request.getId()))
                 .doOnNext(la -> la.setStateId(StatesEnum.valueOf(request.getState()).getStateId()))
                 .flatMap(la -> loanApplicationRepository.saveLoanApplication(la)
-                        .flatMap(saveLa -> sendSqsApprovedReportMessage(request, saveLa))
-                        .zipWith(findUserAndLoanTypeToSend(la, request.getState()))
+                        .flatMap(saveLa -> sendSqsApprovedReportMessage(request, saveLa)
+                                .zipWith(findUserAndLoanTypeToSend(saveLa, request.getState())))
                 )
                 .map(Tuple2::getT1);
     }
@@ -42,17 +43,20 @@ public class UpdateLoanApplicationStateUseCase implements IUseCaseMono<UpdateApp
                     var loanType = tuple.getT2();
 
                     var username = Optional.ofNullable(users.get(0).name()).orElse("user");
-                    return sendSqsEmailMessage(la.getEmail(), username, state, loanType.getName());
+                    return sendSqsEmailMessage(la, username, state, loanType);
                 });
     }
 
-    private Mono<String> sendSqsEmailMessage(String email, String name, String state, String loanType) {
+    private Mono<String> sendSqsEmailMessage(LoanApplication la, String name, String state, LoanType lt) {
         String message = String.format(
-                "{\"email\": \"%s\", \"name\": \"%s\", \"state\": \"%s\", \"loanType\": \"%s\"}",
-                email,
+                "{\"email\": \"%s\", \"name\": \"%s\", \"state\": \"%s\", \"loanType\": \"%s\", \"loanAmount\": \"%f\", \"loanTerm\": \"%d\", \"interestRate\": \"%f\"}",
+                la.getEmail(),
                 name,
                 state,
-                loanType
+                lt.getName(),
+                la.getAmount(),
+                la.getTimeLimit(),
+                lt.getInterestRate()
         );
         return sqsSenderGateway.sendEmailQueue(message);
     }
