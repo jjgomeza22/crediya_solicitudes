@@ -49,14 +49,14 @@ public class UpdateLoanApplicationStateUseCase implements IUseCaseMono<UpdateApp
 
     private Mono<String> sendSqsEmailMessage(LoanApplication la, String name, String state, LoanType lt) {
         String message = String.format(
-                "{\"email\": \"%s\", \"name\": \"%s\", \"state\": \"%s\", \"loanType\": \"%s\", \"loanAmount\": \"%f\", \"loanTerm\": \"%d\", \"interestRate\": \"%f\"}",
+                "{\"email\": \"%s\", \"name\": \"%s\", \"state\": \"%s\", \"loanType\": \"%s\", \"loanAmount\": \"%s\", \"loanTerm\": \"%d\", \"interestRate\": \"%s\"}",
                 la.getEmail(),
                 name,
                 state,
                 lt.getName(),
-                la.getAmount(),
+                la.getAmount().toString(),
                 la.getTimeLimit(),
-                lt.getInterestRate()
+                lt.getInterestRate().toString()
         );
         return sqsSenderGateway.sendEmailQueue(message);
     }
